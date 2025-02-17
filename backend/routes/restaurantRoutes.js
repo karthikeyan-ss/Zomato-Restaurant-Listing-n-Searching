@@ -6,8 +6,10 @@ router.get('/', restaurantController.getRestaurants);
 
 router.get('/search/location', restaurantController.searchByLocation);
 
-router.get('/search', restaurantController.searchRestaurants);
+router.get('/search', restaurantController.searchRestaurants); //
 
 router.get('/filter', restaurantController.filterRestaurants);
+
+router.get('/:id', restaurantController.getRestaurantsById)
 
 module.exports = router;

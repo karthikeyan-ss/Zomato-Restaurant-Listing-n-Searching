@@ -10,8 +10,8 @@ const restaurantSchema = new mongoose.Schema({
     locality: String,
     localityVerbose: String,
     location: {
-        latitude: Number,
-        longitude: Number
+        type: { type: String, default: 'Point'},
+        coordinates: { type: [Number], required: true}
     },
     cuisines: [String],
     averageCostForTwo: Number,

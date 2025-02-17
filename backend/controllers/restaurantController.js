@@ -2,14 +2,14 @@ const Restaurant = require('../models/Restaurant');
 
 exports.getRestaurants = async (req, res) => {
     try {
-        const { page = 1, limit = 10} = req.query;
+        const { page = 1, limit = 12} = req.query;
         const restaurants = await Restaurant.find()
             .limit(limit * 1)
             .skip((page-1) * limit);
         
         const totalRestaurants = await Restaurant.countDocuments();
         res.json({
-            totalRages: Math.ceil(totalRestaurants / limit),
+            totalPages: Math.ceil(totalRestaurants / limit),
             currentPage: page,
             restaurants,
         });
@@ -17,6 +17,20 @@ exports.getRestaurants = async (req, res) => {
         res.status(500).json({error: err.message});
     }
 };
+
+exports.getRestaurantsById = async (req, res) => {
+    try {
+        const restaurant = await Restaurant.findOne({
+            restaurantID: parseInt(req.params.id)
+        });
+        if(!restaurant) return res.status(404).json({
+            message: 'Restaurant not found'
+        });
+        res.json(restaurant);
+    } catch (err) {
+        res.status(500).json({error: err.message})
+    }
+}
 
 exports.searchByLocation = async (req, res) => {
     try {
@@ -29,8 +43,11 @@ exports.searchByLocation = async (req, res) => {
         }
 
         const nearbyRestaurants = await Restaurant.find({
-            'location.latitude': { $gte: lat - 0.03, $lte: lat + 0.03 },
-            'location.longitude': { $gte: lon - 0.03, $lte: lon + 0.03 }
+            location: {
+                $geoWithin: {
+                    $centerSphere: [[lon,lat], radius / 6378100]
+                }
+            }
         });
 
         res.json(nearbyRestaurants);

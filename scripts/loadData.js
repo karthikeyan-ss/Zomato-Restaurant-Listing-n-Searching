@@ -12,7 +12,7 @@ const data = JSON.parse(fs.readFileSync('../data/final_zomato.json', 'utf-8'));
 async function loadData() {
     try {
         const transformedData = data.map(restaurant => ({
-           restaurantID: restaurant['Restautrant ID'],
+           restaurantID: restaurant['Restaurant ID'],
            name: restaurant['Restaurant Name'],
            countryCode: restaurant['Country Code'],
            countryName: restaurant['Country Name'],
@@ -21,8 +21,8 @@ async function loadData() {
            locality: restaurant['Locality'],
            localityVerbose: restaurant['Locality Verbose'],
            location: {
-                latitude: restaurant['Latitude'],
-                longitude: restaurant['Longitude']
+                type: 'Point',
+                coordinates: [restaurant['Longitude'], restaurant['Latitude']]
            },
            cuisines: restaurant['Cuisines'] ? restaurant['Cuisines'].split(',').map(c => c.trim()) : [],
            averageCostForTwo: restaurant['Average Cost for two'],
@@ -32,7 +32,7 @@ async function loadData() {
            isDeliveringNow: restaurant['Is delivering now'] === 'Yes',
            switchToOrderMenu: restaurant['Switch to order menu'] === 'Yes',
            priceRange: restaurant['Price Range'],
-           aggreagateRating: restaurant['Aggregate rating'],
+           aggregateRating: restaurant['Aggregate rating'],
            ratingColor: restaurant['Rating color'],
            ratingText: restaurant['Rating text'],
            votes: restaurant['Votes'],
