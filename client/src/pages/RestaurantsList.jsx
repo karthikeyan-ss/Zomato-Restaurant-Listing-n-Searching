@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
     getRestaurants,
-    searchRestaurantsByLocation,
     searchRestaurantsByName,
     filterRestaurants
 } from '../services/api';
 import RestaurantCard from "../components/RestaurantCard";
+import LocationSearch from "../components/LocationSearch";
 import { Search, MapPin, Filter } from "lucide-react";
 
 const RestaurantsList = () => {
@@ -56,16 +56,8 @@ const RestaurantsList = () => {
     }
 
     //Location search
-    const handleLocationSearch = async (lat, lon, radius = 5000) => {
-        setLoading(true);
-        try {
-            const data = await searchRestaurantsByLocation({ lat, lon, radius });
-            setRestaurants(data);
-        } catch (err) {
-            setError('Failed to fetch location-based restaurants');
-        } finally {
-            setLoading(false);
-        }
+    const handleLocationResults = (results) => {
+      setRestaurants(results);
     }
 
     //Apply filters
@@ -120,47 +112,62 @@ const RestaurantsList = () => {
             </button>
           </div>
 
-          {/* Loading & Error Handling */}
-          {loading && (
-            <p className="text-center text-gray-500">Loading restaurants...</p>
-          )}
-          {error && <p className="text-center text-red-500">{error}</p>}
+          {/* ✅ LocationSearch & Restaurants Side by Side */}
+          <div className="grid grid-cols-4 gap-6">
+            {/* Left Sidebar - Location Search */}
+            <div className="col-span-1">
+              <LocationSearch onResults={handleLocationResults} />
+            </div>
 
-          {/* Restaurant Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {restaurants.length > 0 ? (
-              restaurants.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant.restaurantID}
-                  restaurant={restaurant}
-                />
-              ))
-            ) : (
-              <p className="text-center text-gray-600">No restaurants found.</p>
-            )}
-          </div>
+            {/* Right - Restaurants Grid */}
+            <div className="col-span-3">
+              {/* Loading & Error Handling */}
+              {loading && (
+                <p className="text-center text-gray-500">
+                  Loading restaurants...
+                </p>
+              )}
+              {error && <p className="text-center text-red-500">{error}</p>}
 
-          {/* Pagination Controls */}
-          <div className="mt-6 flex justify-center">
-            <nav className="inline-flex rounded-md shadow">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <span className="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </nav>
+              {/* Restaurant Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {restaurants.length > 0 ? (
+                  restaurants.map((restaurant) => (
+                    <RestaurantCard
+                      key={restaurant.restaurantID}
+                      restaurant={restaurant}
+                    />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-600">
+                    No restaurants found.
+                  </p>
+                )}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="mt-6 flex justify-center">
+                <nav className="inline-flex rounded-md shadow">
+                  <button
+                    onClick={() => setPage(page - 1)}
+                    disabled={page === 1}
+                    className="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <span className="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    Page {page} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage(page + 1)}
+                    disabled={page === totalPages}
+                    className="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </nav>
+              </div>
+            </div>
           </div>
         </main>
       </div>
