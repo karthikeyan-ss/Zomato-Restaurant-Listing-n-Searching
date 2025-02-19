@@ -2,7 +2,7 @@ const Restaurant = require('../models/Restaurant');
 
 exports.getRestaurants = async (req, res) => {
     try {
-        const { page = 1, limit = 12} = req.query;
+        const { page = 1, limit = 6} = req.query;
         const restaurants = await Restaurant.find()
             .limit(limit * 1)
             .skip((page-1) * limit);

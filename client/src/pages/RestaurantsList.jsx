@@ -7,13 +7,14 @@ import {
 } from '../services/api';
 import RestaurantCard from "../components/RestaurantCard";
 import LocationSearch from "../components/LocationSearch";
-import { Search, MapPin, Filter } from "lucide-react";
+import SearchBar from "../components/SearchBar";
+import FilterPanel from "../components/FilterPanel";
+import { Camera } from "lucide-react";
 
 const RestaurantsList = () => {
     const [restaurants, setRestaurants] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -79,43 +80,29 @@ const RestaurantsList = () => {
         <header className="bg-white shadow">
           <div className="max-w-7xl mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold text-gray-900">Restaurants</h1>
+
+            <button 
+                    onClick={() => navigate('/image-search')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
+            >
+                <Camera className="w-5 h-5 mr-2" />
+                Image Search
+            </button>
           </div>
         </header>
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-6">
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            {/* Search Bar */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search restaurants..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleSearch}
-              className="flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Search
-            </button>
-            <button className="flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-5 h-5 mr-2" />
-              Filters
-            </button>
+          {/* Search Bar - Centered Above Grid */}
+          <div className="mb-6">
+            <SearchBar onSearch={handleSearch} />
           </div>
 
-          {/* ✅ LocationSearch & Restaurants Side by Side */}
+          {/* Sidebar (Filters + Location) & Restaurants Grid */}
           <div className="grid grid-cols-4 gap-6">
-            {/* Left Sidebar - Location Search */}
-            <div className="col-span-1">
+            {/* Left Sidebar - Filter & Location Search */}
+            <div className="col-span-1 space-y-6">
+              <FilterPanel onFilter={handleFilterApply} />
               <LocationSearch onResults={handleLocationResults} />
             </div>
 
@@ -136,6 +123,9 @@ const RestaurantsList = () => {
                     <RestaurantCard
                       key={restaurant.restaurantID}
                       restaurant={restaurant}
+                      onClick={() =>
+                        handleRestaurantClick(restaurant.restaurantID)
+                      }
                     />
                   ))
                 ) : (
