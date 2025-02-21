@@ -64,11 +64,13 @@ exports.searchByLocation = async (req, res) => {
 
 exports.searchRestaurants = async (req, res) => {
     try {
-        const { query } = req.query;
+        let { query } = req.query;
 
         if(!query) {
             return res.status(400).json({message: 'Query parameter is required'});
         }
+
+        query = String(query);
 
         const results = await Restaurant.find({
             $or: [

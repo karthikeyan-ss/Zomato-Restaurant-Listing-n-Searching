@@ -24,7 +24,7 @@ export const getRestaurantById = async (restaurantID) => {
 
 export const searchRestaurantsByName = async (query) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/search`, { params: { query } });
+        const response = await axios.get(`${API_BASE_URL}/search`, { params: { query: String(query) } });
         return response.data;
     } catch (err) {
         console.error('Error searching restauarants:', err);
