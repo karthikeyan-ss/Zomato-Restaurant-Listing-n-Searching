@@ -7,6 +7,7 @@ import {
 } from '../services/api';
 import RestaurantCard from "../components/RestaurantCard";
 import LocationSearch from "../components/LocationSearch";
+import ImageSearch from "../components/ImageSearch";
 import SearchBar from "../components/SearchBar";
 import FilterPanel from "../components/FilterPanel";
 import { Camera } from "lucide-react";
@@ -43,7 +44,7 @@ const RestaurantsList = () => {
     }
 
     //Search restaurant by name
-    const handleSearch = async () => {
+    const handleSearch = async (searchTerm) => {
         if(!searchTerm) return;
         setLoading(true);
         try {
@@ -74,6 +75,11 @@ const RestaurantsList = () => {
         }
     }
 
+    // Image Search
+    const handleImageSearchResults = (results) => {
+      setRestaurants(results);
+    }
+
     return (
       <div className="min-h-screen bg-gray-100">
         {/* Header */}
@@ -81,13 +87,15 @@ const RestaurantsList = () => {
           <div className="max-w-7xl mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold text-gray-900">Restaurants</h1>
 
-            <button 
+            {/* <button 
                     onClick={() => navigate('/image-search')}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
             >
                 <Camera className="w-5 h-5 mr-2" />
                 Image Search
-            </button>
+            </button> */}
+
+            <ImageSearch onResults={handleImageSearchResults}/>
           </div>
         </header>
 

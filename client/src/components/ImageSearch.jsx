@@ -28,7 +28,12 @@ const ImageSearch = ({ onResults }) => {
 
         try {
             const results = await searchByImage(selectedImage);
-            onResults(results);
+            
+            if (results && Array.isArray(results.restaurants)) {
+              onResults(results.restaurants); // Pass only the restaurant data
+            } else {
+              setError("No restaurants found. Try a different image.");
+            }
         } catch (err) {
             setError('Failed to search by image. Please try again');
         } finally {
