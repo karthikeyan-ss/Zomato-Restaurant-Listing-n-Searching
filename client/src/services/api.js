@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:5000/restaurants';
+// const API_BASE_URL = 'http://localhost:5000/restaurants';
+const API_BASE_URL = "https://zomato-restaurant-listing-n-searching.onrender.com/restaurants";
+
 
 export const getRestaurants = async (filters = {}) => {
     try {
