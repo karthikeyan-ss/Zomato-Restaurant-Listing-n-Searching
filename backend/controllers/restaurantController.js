@@ -3,6 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const cloudinary = require("../config/cloudinaryConfig");
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -109,22 +110,8 @@ exports.filterRestaurants = async (req, res) => {
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Setup multer for storing uploaded images
-const uploadDir = "uploads/";
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
-const upload = multer({ storage: storage });
+// Setup Multer for temporary file storage before Cloudinary upload
+const upload = multer({ dest: 'tempUploads/' });
 
 exports.searchByImage = async (req, res) => {
   try {
@@ -132,9 +119,21 @@ exports.searchByImage = async (req, res) => {
       return res.status(400).json({ error: "No image uploaded" });
     }
 
-    const filePath = path.join(uploadDir, req.file.filename);
-    const imageBuffer = fs.readFileSync(filePath);
-    const base64Image = imageBuffer.toString("base64");
+    // Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'restaurant_images'
+    })
+
+    // Delete the temporary local file
+    fs.unlinkSync(req.file.path);
+
+    // Get Cloudinary image URL
+    const imageUrl = result.secure_url;
+    console.log('Uploaded image URL: ', imageUrl);
+
+    // Get the image as base64 for Gemini API
+    const imageBuffer = await fetch(imageUrl).then(res => res.arrayBuffer());
+    const base64Image = Buffer.from(imageBuffer).toString('base64');
 
     // Structured classification prompt
     const prompt =
@@ -153,13 +152,25 @@ exports.searchByImage = async (req, res) => {
       "Tibetan, Turkish, Vegetarian, Vietnamese, Western, World Cuisine].";
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent([
-      prompt,
-      { inlineData: { mimeType: "image/png", data: base64Image } },
-    ]);
+    const resultAI = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: "image/png",
+                data: base64Image,
+              },
+            },
+          ],
+        },
+      ],
+    });
 
     const responseText =
-      result.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+      resultAI.response?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!responseText) {
       return res.status(500).json({ error: "Failed to analyze image" });
     }
