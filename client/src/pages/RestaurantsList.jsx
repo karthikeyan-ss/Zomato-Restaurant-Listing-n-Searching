@@ -44,14 +44,15 @@ const RestaurantsList = () => {
     }
 
     //Search restaurant by name
-    const handleSearch = async (searchTerm) => {
-        if(!searchTerm) return;
+    const handleSearch = async (query) => {
+        if(!query) return;
         setLoading(true);
+        setError("")
         try {
-            const data = await searchRestaurantsByName({ query: searchTerm });
+            const data = await searchRestaurantsByName(query);
             setRestaurants(data);
         } catch (err) {
-            console.error('Failed to search restaurants.');
+            setError('Failed to search restaurants. Try again');
         } finally {
             setLoading(false);
         }
@@ -63,13 +64,19 @@ const RestaurantsList = () => {
     }
 
     //Apply filters
-    const handleFilterApply = async (country, cuisines, minCost, maxCost) => {
+    const handleFilterApply = async ({country, cuisine, minCost, maxCost}) => {
         setLoading(true);
+        setError("");
         try {
-            const data = await filterRestaurants({country, cuisines, minCost, maxCost});
+            const data = await filterRestaurants({
+              country,
+              cuisines: cuisine ? cuisine : '',
+              minCost,
+              maxCost
+            });
             setRestaurants(data);
         } catch (err) {
-            setError('Failed to filter restaurants.');
+            setError('Failed to filter restaurants. Try again.');
         } finally {
             setLoading(false);
         }

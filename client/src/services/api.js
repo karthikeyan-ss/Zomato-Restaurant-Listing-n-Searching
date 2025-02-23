@@ -26,7 +26,7 @@ export const getRestaurantById = async (restaurantID) => {
 
 export const searchRestaurantsByName = async (query) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/search`, { params: { query: String(query) } });
+        const response = await axios.get(`${API_BASE_URL}/search`, { params: { query } });
         return response.data;
     } catch (err) {
         console.error('Error searching restauarants:', err);
@@ -46,10 +46,10 @@ export const searchRestaurantsByLocation = async (lat, lon, radius) => {
     }
 }
 
-export const filterRestaurants = async (country, cuisines, minCost, maxCost) => {
+export const filterRestaurants = async (filters = {}) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/filter`, {
-            params: { country, cuisine, minCost, maxCost },
+            params: filters,
         });
         return response.data;
     } catch (err){

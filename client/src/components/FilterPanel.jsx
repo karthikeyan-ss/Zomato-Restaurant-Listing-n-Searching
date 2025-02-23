@@ -7,7 +7,12 @@ const FilterPanel = ({ onFilter }) => {
     const [maxCost, setMaxCost] = useState(5000);
 
     const handleApplyFilters = () => {
-        onFilter({ country, cuisine, minCost, maxCost });
+        onFilter({
+          country,
+          cuisine,
+          minCost: Number(minCost),
+          maxCost: Number(maxCost)
+        });
     }
 
     return (
