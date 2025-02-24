@@ -63,9 +63,13 @@ export const searchByImage = async (imageFile) => {
         const formData = new FormData();
         formData.append('image', imageFile);
 
-        const response = await axios.post('http://localhost:5000/restaurants/search/image', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        const response = await axios.post(
+          `${API_BASE_URL}/search/image`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         return response.data;
     } catch (err) {
         console.error('Error searching by image:', err);
